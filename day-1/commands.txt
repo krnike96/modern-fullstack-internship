@@ -1,0 +1,22 @@
+github: nischalgv1/SECE-FSD
+
+1. tsc index.ts --watch
+=> watches for any changes while compiling. avoid the headache of changing, then compiling again to check for the error.
+=> auto recompile
+
+2. tsc --init
+=> TS recommands a folder structure. 
+=> makes the folder a TS folder including tsconfig.json file for configuration
+=> src : the main folder where all the ts files are located
+=> dist : all the compiled .ts file to .js file goes here
+
+3. "noEmitOnError": true -> under compilationOptions in tsconfig.json file
+=> if there is any error in the .ts file caught during compilation, this won't let the file to be generated in the ./dist folder
+
+4. export{} 
+=> treats the file as module and not global file.
+=> removes the global variable naming conflicts
+
+5. readonly -> works with arrays and tuples only
+=> make the variable readonly even if it is declared with let or var
+
