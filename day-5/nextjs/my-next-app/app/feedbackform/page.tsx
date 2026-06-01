@@ -71,7 +71,7 @@
 
 // export default FeedbackForm;
 
-import { addFeedback, getFeedbacks } from "../actions/databaseOperations";
+import { addFeedback, getFeedbacks } from "../actions/feedbackDatabaseOperations";
 
 async function FeedbackForm() {
     const feedbacks = await getFeedbacks();

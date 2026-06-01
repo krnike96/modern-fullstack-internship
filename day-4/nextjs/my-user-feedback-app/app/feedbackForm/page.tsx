@@ -33,17 +33,19 @@ function FeedbackForm() {
           placeholder="Name"
           required
         />
+        <br />
         <textarea 
           value={message} 
           onChange={(e) => setMessage(e.target.value)} 
           placeholder="Message"
           required
         />
+        <br />
         <button type="submit">Submit</button>
       </form>
 
       <h3>Feedbacks received:</h3>
-      {feedbacks?.map((item, index) => (
+      {feedbacks.map((item, index) => (
         <div key={index}>
           <strong>{item.name}</strong>
           <p>{item.message}</p>
