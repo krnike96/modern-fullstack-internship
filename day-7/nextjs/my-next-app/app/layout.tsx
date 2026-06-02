@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Search from "./components/search";
-import Filter from "./components/Filter";
-import Sort from "./components/Sort";
+import Navbar from "./components/Navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,9 +14,7 @@ export default function RootLayout({
   return (
     <html>
       <body className="min-h-full flex flex-col">
-        <Search />
-        <Filter />
-        <Sort />
+        <Navbar />
         {children}
         </body>
     </html>

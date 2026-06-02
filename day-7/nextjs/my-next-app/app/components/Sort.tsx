@@ -39,3 +39,13 @@ export default function Sort(){
         </>
     )
 }
+
+/*
+  tables:
+    customers: name, email, password, cust_id
+    , orders: order_id, total, created_at, status, cust_id
+    , restuarants: table ❌ api ✅
+    , menu_items: item_id, item_name, price
+    , order_items: order_id, item_id, quantity
+    , category: cat_id, name,
+*/
