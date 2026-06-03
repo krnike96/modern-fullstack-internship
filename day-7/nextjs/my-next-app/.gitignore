@@ -40,3 +40,5 @@ codebase_smart.txt
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/generated/prisma

@@ -44,7 +44,13 @@ export default function FoodCards() {
     if (existing) {
       existing.quantity++;
     } else {
-      cart.push({ ...item, quantity: 1 });
+      cart.push({
+        item_id: item.item_id,
+        name: item.item_name,
+        price: item.price,
+        category: item.category,
+        quantity: 1,
+      });
     }
     localStorage.setItem("cart", JSON.stringify(cart));
     alert("Added to cart");

@@ -1,48 +1,90 @@
 "use server";
-import { pool } from "../lib/db";
+import { prisma } from "../lib/prisma";
 
 export async function getMenuItems() {
-  const res = await pool.query("SELECT item_id, item_name, price, category FROM menu_items");
-  return res.rows;
+  const items = await prisma.menu_items.findMany({
+    select: {
+      item_id: true,
+      item_name: true,
+      price: true,
+      category: true,
+    },
+  });
+  return items.map(item => ({
+    ...item,
+    price: Number(item.price)
+  }));
 }
 
 export async function loginUser(email: string, password: string) {
-  const res = await pool.query(
-    "SELECT cust_id, name, email FROM customers WHERE email = $1 AND password = $2",
-    [email, password]
-  );
-  return res.rows[0] || null;
+  const user = await prisma.customers.findFirst({
+    where: {
+      email: email,
+      password: password,
+    },
+    select: {
+      cust_id: true,
+      name: true,
+      email: true,
+    },
+  });
+  return user || null;
 }
 
 export async function registerUser(name: string, email: string, password: string) {
-  const res = await pool.query(
-    "INSERT INTO customers (name, email, password) VALUES ($1, $2, $3) RETURNING cust_id, name, email",
-    [name, email, password]
-  );
-  return res.rows[0];
+  try {
+    const newUser = await prisma.customers.create({
+      data: {
+        name: name,
+        email: email,
+        password: password,
+      },
+      select: {
+        cust_id: true,
+        name: true,
+        email: true,
+      },
+    });
+    return newUser;
+  } catch (error: any) {
+    if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+      return null;
+    }
+    console.error("Registration error:", error);
+    return null;
+  }
 }
 
 export async function createOrder(cust_id: number, items: { item_id: number; quantity: number }[], total: number) {
-  const client = await pool.connect();
   try {
-    await client.query("BEGIN");
-    const orderRes = await client.query(
-      "INSERT INTO orders (total, cust_id) VALUES ($1, $2) RETURNING order_id",
-      [total, cust_id]
-    );
-    const orderId = orderRes.rows[0].order_id;
-    for (const item of items) {
-      await client.query(
-        "INSERT INTO order_items (order_id, item_id, quantity) VALUES ($1, $2, $3)",
-        [orderId, item.item_id, item.quantity]
-      );
-    }
-    await client.query("COMMIT");
-    return { success: true, orderId };
-  } catch (err) {
-    await client.query("ROLLBACK");
-    return { success: false, error: String(err) };
-  } finally {
-    client.release();
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Create the order
+      const order = await tx.order.create({
+        data: {
+          total: total,
+          cust_id: cust_id,
+          status: "pending",
+        },
+        select: {
+          order_id: true,
+        },
+      });
+
+      // 2. Create all order items
+      await tx.orderItem.createMany({
+        data: items.map((item) => ({
+          order_id: order.order_id,
+          item_id: item.item_id,
+          quantity: item.quantity,
+        })),
+      });
+
+      return order.order_id;
+    });
+
+    return { success: true, orderId: result };
+  } catch (error) {
+    console.error("Order creation error:", error);
+    return { success: false, error: String(error) };
   }
 }
