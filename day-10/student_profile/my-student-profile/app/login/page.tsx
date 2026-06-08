@@ -1,3 +1,4 @@
+// app/login/page.tsx
 'use client'
 
 import { useState } from 'react'
@@ -6,13 +7,14 @@ import { loginAction } from '@/app/actions/auth'
 export default function LoginPage() {
   const [error, setError] = useState('')
   
-  async function handleSubmit(e: any) {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+  async function handleFormAction(formData: FormData) {
     try {
       await loginAction(formData)
-    } catch (err) {
-        console.error(err);
+    } catch (err: any) {
+      if (err.message && err.message.includes('NEXT_REDIRECT')) {
+        throw err;
+      }
+      console.error(err);
       setError('Login failed');
     }
   }
@@ -20,7 +22,7 @@ export default function LoginPage() {
   return (
     <div style={{ maxWidth: 400, margin: '40px auto', padding: 20, border: '1px solid #ccc', borderRadius: 4 }}>
       <h1 style={{ marginBottom: 20 }}>Teacher Login</h1>
-      <form onSubmit={handleSubmit}>
+      <form action={handleFormAction}> 
         <div style={{ marginBottom: 15 }}>
           <label style={{ display: 'block', marginBottom: 5 }}>Email</label>
           <input type="email" name="email" required style={{ width: '100%', padding: 8 }} />
