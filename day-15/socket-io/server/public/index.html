@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+</head>
+<body>
+    <h1>Chat App</h1>
+    <input type="text" id="sender" placeholder="Enter your name" />
+    <button id="join-button">Join Chat</button>
+
+    <br>
+
+    <input type="text" id="receiver" placeholder="Enter your name" />
+    <input type="text" id="message" placeholder="Enter your message" /><br>
+    <button id="send-btn">Send Message</button>
+
+    <div id="message-container"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const senderInput = document.getElementById("sender");
+        const receiverInput = document.getElementById("receiver");
+        const joinChatBtn = document.getElementById("join-btn");
+        const sendMsgBtn = document.getElementById("send-btn");
+        const messageInput = document.getElementById("message");
+        const messages = document.getElementById("message-container");
+
+        let currentUser = "";
+        let receiverName = "";
+
+        const message = messageInput.value;
+        // attach an event listener "click" on joinChatBtn
+        joinChatBtn.addEventListener("click", () => {
+            currentUser = senderInput.value;
+            socket.emit("register-user", currentUser);
+            senderInput.value = "";
+        });
+
+        sendMsgBtn.addEventListener("click", () => {
+            receiverName = receiverInput.value;
+            message = messageInput.value;
+            socket.emit("private-msg", {
+                from: currentUser,
+                to: receiverName,
+                text: message
+            })
+            receiverInput.value = "";
+        })
+
+        socket.on("private-msg", (data) => {
+            const p = document.createElement("p");
+            p.textContent = `
+                from: ${data.from}
+                to: ${data.to}
+                message: ${data.message}
+            `;
+            messages.appendChild(p);
+        })
+
+    </script>
+</body>
+</html>

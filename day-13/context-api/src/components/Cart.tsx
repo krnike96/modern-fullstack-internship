@@ -1,6 +1,6 @@
 // we will display all added items and their price
 // calculte the total price
-
+import React from "react";
 import { CartContext } from "../context/CartContext";
 
 export default function Cart() {

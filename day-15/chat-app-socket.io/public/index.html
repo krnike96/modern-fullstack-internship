@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat app</title>
+</head>
+<body>
+    <h1>Chat App 💬</h1>
+
+    <input type="text" id="sender" placeholder="Enter your name"/>
+    <button id="join-btn">Join Chat</button>
+    <br><br>
+
+
+    <!-- input field for typing receiver's username -->
+    <input type="text" id="receiver" placeholder="Enter receiver's name"/>
+    <input type="text" id="message" placeholder="Write your message here">
+    <button id="send-btn">Send Message</button>
+    <br><br>
+    <div id="messages"></div>
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const senderInputField = document.getElementById("sender");
+        const receiverInputField = document.getElementById("receiver");
+
+        const joinChatBtn = document.getElementById("join-btn");
+        const msgInputField = document.getElementById("message");
+        const sendMsgBtn = document.getElementById("send-btn");
+
+     
+        const messages = document.getElementById("messages");
+
+        let current_user = "";
+        // attach an event listener (click) on joinChatBtn
+        joinChatBtn.addEventListener('click', () => {
+            current_user = senderInputField.value;
+            socket.emit("register-user", current_user);
+            senderInputField.value = '';
+        });
+        let receiverName = "";
+        let message = "";
+        sendMsgBtn.addEventListener('click', () => {
+            receiverName = receiverInputField.value;
+            message = msgInputField.value;
+            socket.emit("private-message", {
+                from: current_user,
+                to: receiverName,
+                text: message
+            })
+        })
+        console.log(receiverName, message);
+        socket.on("message", (data) => {
+            const p = document.createElement("p");
+            p.textContent = `${data.from} ➜ ${data.to}: ${data.text}`;
+            messages.appendChild(p);
+        });
+
+
+        // socket.on("private-message", (data) => {
+        //     // create the p tag
+        //     const p = document.createElement('p');
+        //     p.textContent = `${data.from} --> ${data.to} --> ${data.text}`;
+        //     console.log(data.to, data.text);
+        //     messages.appendChild(p);
+        // })
+
+    </script>
+</body>
+</html>
